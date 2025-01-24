@@ -1,0 +1,13 @@
+<resources>
+    <string name="app_name">Fluid Expense Tracker</string>
+    <string name="tab_text_1">Tab 1</string>
+    <string name="tab_text_2">Tab 2</string>
+    <string name="base_url">http://moleculesoft.tech:5120/api/v1</string>
+    <string name="main_menu_dashboard">Dashboard</string>
+    <string name="main_menu_save_goal">Saving Goals</string>
+    <string name="main_menu_budget">Budgets</string>
+    <string name="main_menu_setting">Setting</string>
+    <string name="main_menu_category">Category</string>
+    <string name="navigation_drawer_open">Open navigation drawer</string>
+    <string name="navigation_drawer_close">Close navigation drawer</string>
+</resources>
