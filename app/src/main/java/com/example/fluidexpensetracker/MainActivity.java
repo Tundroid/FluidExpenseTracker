@@ -38,11 +38,9 @@ import com.example.fluidexpensetracker.databinding.ActivityMainBinding;
 import org.json.JSONException;
 import org.json.JSONObject;
 
-public class MainActivity extends AppCompatActivity implements NewExpenseDialogFragment.NewExpenseDialogListener {
+public class MainActivity extends AppCompatActivity {
 
     private ActivityMainBinding binding;
-    private ExpenseAdapter adapter;
-    private SwipeRefreshLayout swipeRefreshLayout;
     private DrawerLayout drawer;
     private NavigationView navigationView;
     private Toolbar toolbar;
@@ -84,84 +82,14 @@ public class MainActivity extends AppCompatActivity implements NewExpenseDialogF
             return true;
         });
 
-
-        SectionsPagerAdapter sectionsPagerAdapter = new SectionsPagerAdapter(this, getSupportFragmentManager());
-        ViewPager viewPager = binding.viewPager;
-        viewPager.setAdapter(sectionsPagerAdapter);
-        TabLayout tabs = binding.tabs;
-        tabs.setupWithViewPager(viewPager);
-        FloatingActionButton fab = binding.fab;
-
-        swipeRefreshLayout = findViewById(R.id.swipeRefreshLayout); // Initialize SwipeRefreshLayout
-        swipeRefreshLayout.setOnRefreshListener(() -> {
-            fetchExpenses(); // Call fetchExpenses() on refresh
-        });
-
-        fab.setOnClickListener(new View.OnClickListener() {
-            @Override
-            public void onClick(View view) {
-                NewExpenseDialogFragment dialog = new NewExpenseDialogFragment();
-                dialog.show(getSupportFragmentManager(), "NewExpenseDialog");
-            }
-        });
+        if (savedInstanceState == null) { // Check if it's the initial creation
+            FragmentExpense fragment = new FragmentExpense();
+            FragmentTransaction transaction = getSupportFragmentManager().beginTransaction();
+            transaction.add(R.id.fragment_container, fragment); // Use add() instead of replace() for initial fragment
+            transaction.commit();
+        }
 
 
-        // Find the RecyclerView
-        RecyclerView recyclerView = findViewById(R.id.recycler_view);
 
-        // Set layout manager (usually LinearLayoutManager for a vertical list)
-        recyclerView.setLayoutManager(new LinearLayoutManager(this));
-
-        // Create an ExpenseAdapter with sample data (consider replacing with your data source)
-        adapter = new ExpenseAdapter();
-
-        // Set the adapter to the RecyclerView
-        recyclerView.setAdapter(adapter);
-
-        ItemTouchHelper itemTouchHelper = new ItemTouchHelper(new SwipeToDeleteCallback(adapter, this));
-        itemTouchHelper.attachToRecyclerView(recyclerView);
-
-        fetchExpenses(); // Fetch expenses from the API
-    }
-
-    private void fetchExpenses() {
-        String url = getString(R.string.base_url) + "/get/expense"; // Replace with your API endpoint
-
-        RequestQueue queue = Volley.newRequestQueue(this);
-
-        JsonArrayRequest jsonArrayRequest = new JsonArrayRequest(Request.Method.GET, url, null,
-                response -> {
-                    try {
-                        adapter.getExpenseList().clear();
-                        for (int i = 0; i < response.length(); i++) {
-                            JSONObject jsonObject = response.getJSONObject(i);
-                            String date = jsonObject.getString("ExpenseDate");
-                            int amount = jsonObject.getInt("Amount");
-                            String category = jsonObject.getString("CategoryID");
-                            String description = jsonObject.getString("ExpenseDescription");
-
-                            Expense expense = new Expense(date, amount, category, description);
-                            onExpenseAdded(expense);
-                        }
-                        adapter.notifyDataSetChanged(); // Notify adapter after fetching data
-
-                    } catch (JSONException e) {
-                        Log.e(TAG, "Error parsing JSON: " + e.getMessage());
-                        Toast.makeText(this, "Error parsing data", Toast.LENGTH_SHORT).show();
-                    } finally {
-                        swipeRefreshLayout.setRefreshing(false);
-                    }
-                }, error -> {
-            Log.e(TAG, "Volley Error: " + error.getMessage());
-            swipeRefreshLayout.setRefreshing(false);
-        });
-
-        queue.add(jsonArrayRequest);
-    }
-
-    @Override
-    public void onExpenseAdded(Expense expense) {
-        adapter.getExpenseList().add(expense);
-        adapter.notifyItemInserted(adapter.getExpenseList().size() - 1); // Notify adapter of new item
     }
 }
