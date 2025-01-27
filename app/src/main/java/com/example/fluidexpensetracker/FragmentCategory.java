@@ -16,6 +16,7 @@ import androidx.swiperefreshlayout.widget.SwipeRefreshLayout;
 
 import com.example.fluidexpensetracker.databinding.FragmentCategoryBinding;
 import com.example.fluidexpensetracker.model.Category;
+import com.example.fluidexpensetracker.util.FetchCallback;
 
 public class FragmentCategory extends Fragment implements NewCategoryDialogFragment.NewCategoryDialogListener {
     private FragmentCategoryBinding binding;

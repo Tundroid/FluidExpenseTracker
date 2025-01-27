@@ -17,4 +17,6 @@ public interface GenericAdapter<T> {
     public void restoreItem(T item, int position);
 
     public void notifyAdapterItemChanged(int position);
+
+    public void notifyAdapterItemInserted(int position);
 }

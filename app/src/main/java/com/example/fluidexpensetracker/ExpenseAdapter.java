@@ -83,6 +83,11 @@ public class ExpenseAdapter extends RecyclerView.Adapter<ExpenseAdapter.ViewHold
         super.notifyItemChanged(position);
     }
 
+    @Override
+    public void notifyAdapterItemInserted(int position) {
+        super.notifyItemInserted(position);
+    }
+
     public static class ViewHolder extends RecyclerView.ViewHolder {
         TextView dateTextView;
         TextView amountTextView;

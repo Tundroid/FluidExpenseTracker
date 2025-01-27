@@ -15,6 +15,7 @@ import androidx.lifecycle.ViewModelProvider;
 
 import com.example.fluidexpensetracker.databinding.ActivityMainBinding;
 import com.example.fluidexpensetracker.model.User;
+import com.example.fluidexpensetracker.util.FetchCallback;
 import com.example.fluidexpensetracker.util.Util;
 import com.google.android.material.navigation.NavigationView;
 
@@ -66,23 +67,13 @@ public class MainActivity extends AppCompatActivity {
         navigationView.setNavigationItemSelectedListener(item -> {
             int id = item.getItemId();
 
-            if (id == R.id.nav_category_expense || id == R.id.nav_category_budget
-                    || id == R.id.nav_category_income || id == R.id.nav_category_saving) {
-                FragmentCategory categoryFragment = new FragmentCategory();
+            if (true) {
+                FragmentList fragmentList = new FragmentList();
                 Bundle bundle = new Bundle();
                 bundle.putString("CategoryType", item.getTitle().toString());
-                categoryFragment.setArguments(bundle);
+                fragmentList.setArguments(bundle);
                 FragmentTransaction transaction = getSupportFragmentManager().beginTransaction();
-                transaction.replace(R.id.fragment_container, categoryFragment); // Replace fragment_container with the id of a FrameLayout in your main activity layout
-                transaction.addToBackStack(null); // Optional: Add to back stack
-                transaction.commit();
-            } else if (id == R.id.nav_expense) {
-                FragmentExpense fragment = new FragmentExpense();
-                Bundle bundle = new Bundle();
-                bundle.putString("CategoryType", item.getTitle().toString());
-                fragment.setArguments(bundle);
-                FragmentTransaction transaction = getSupportFragmentManager().beginTransaction();
-                transaction.replace(R.id.fragment_container, fragment); // Replace fragment_container with the id of a FrameLayout in your main activity layout
+                transaction.replace(R.id.fragment_container, fragmentList); // Replace fragment_container with the id of a FrameLayout in your main activity layout
                 transaction.addToBackStack(null); // Optional: Add to back stack
                 transaction.commit();
             } else if (id == R.id.nav_slideshow) {

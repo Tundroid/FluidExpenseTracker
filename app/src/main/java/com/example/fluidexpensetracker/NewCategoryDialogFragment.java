@@ -84,11 +84,11 @@ public class NewCategoryDialogFragment extends DialogFragment {
     private void sendPostRequest(Category category) {
         String url = getString(R.string.base_url) + "/create/category"; // Replace with your POST API endpoint
 
-        JSONObject jsonObject = new JSONObject();
+        JSONObject requestBody = new JSONObject();
         try {
-            jsonObject.put("CategoryName", category.getName());
-            jsonObject.put("CategoryType", getArguments().getString("CategoryType"));
-            jsonObject.put("UserID", Util.getAppUser().getId());
+            requestBody.put("CategoryName", category.getName());
+            requestBody.put("CategoryType", getArguments().getString("CategoryType"));
+            requestBody.put("UserID", Util.getAppUser().getId());
         } catch (JSONException e) {
             Log.e(TAG, "JSON Exception: " + e.getMessage());
             Toast.makeText(getActivity(), "Error creating JSON", Toast.LENGTH_SHORT).show();
@@ -97,7 +97,7 @@ public class NewCategoryDialogFragment extends DialogFragment {
 
         RequestQueue queue = Volley.newRequestQueue(requireContext());
 
-        JsonObjectRequest jsonObjectRequest = new JsonObjectRequest(Request.Method.POST, url, jsonObject,
+        JsonObjectRequest jsonObjectRequest = new JsonObjectRequest(Request.Method.POST, url, requestBody,
                 response -> {
                     // Handle successful response
                     Log.d(TAG, "POST request successful: " + response.toString());
