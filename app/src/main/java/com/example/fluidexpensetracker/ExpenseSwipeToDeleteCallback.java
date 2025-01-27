@@ -20,29 +20,26 @@ import com.android.volley.Request;
 import com.android.volley.RequestQueue;
 import com.android.volley.toolbox.JsonObjectRequest;
 import com.android.volley.toolbox.Volley;
-import com.example.fluidexpensetracker.util.GenericAdapter;
-import com.example.fluidexpensetracker.util.Util;
+import com.example.fluidexpensetracker.model.Expense;
 import com.google.android.material.snackbar.Snackbar;
 
 import org.json.JSONArray;
 import org.json.JSONException;
 import org.json.JSONObject;
 
-public class SwipeToDeleteCallback<T> extends ItemTouchHelper.SimpleCallback {
+public class ExpenseSwipeToDeleteCallback extends ItemTouchHelper.SimpleCallback {
 
-    private final GenericAdapter<T> adapter;
-    private final Context context;
-    private final Drawable icon;
+    private ExpenseAdapter adapter;
+    private Drawable icon;
     private final ColorDrawable background;
-    private final String urlModel; // Generic URL for delete requests
+    private Context context;
 
-    public SwipeToDeleteCallback(GenericAdapter<T> adapter, Context context, String urlModel) {
+    public ExpenseSwipeToDeleteCallback(ExpenseAdapter adapter, Context context) {
         super(0, ItemTouchHelper.LEFT | ItemTouchHelper.RIGHT);
         this.adapter = adapter;
         this.context = context;
-        this.urlModel = urlModel;
-
-        icon = ContextCompat.getDrawable(context, R.drawable.ic_launcher_foreground); // Replace with your delete icon
+        icon = ContextCompat.getDrawable(context,
+                R.drawable.ic_launcher_foreground); // Replace with your delete icon
         background = new ColorDrawable(Color.RED);
     }
 
@@ -54,17 +51,16 @@ public class SwipeToDeleteCallback<T> extends ItemTouchHelper.SimpleCallback {
     @Override
     public void onSwiped(@NonNull RecyclerView.ViewHolder viewHolder, int direction) {
         int position = viewHolder.getAdapterPosition();
-        T deletedItem = adapter.getItem(position);
-        int deletedID = adapter.getItemID(position);
+        Expense deletedItem = adapter.getList().get(position); // Store the deleted item
 
 
         new AlertDialog.Builder(context)
-                .setTitle("Delete Item")
-                .setMessage("Are you sure you want to delete this item?")
+                .setTitle("Delete Expense")
+                .setMessage("Are you sure you want to delete this expense?")
                 .setPositiveButton("Delete", (dialog, which) -> {
                     adapter.deleteItem(position);
                     Snackbar snackbar = Snackbar
-                            .make(viewHolder.itemView, "Item deleted", Snackbar.LENGTH_LONG);
+                            .make(viewHolder.itemView, "Expense deleted", Snackbar.LENGTH_LONG);
                     snackbar.setAction("UNDO", view -> {
                         adapter.restoreItem(deletedItem, position);
                     });
@@ -73,14 +69,14 @@ public class SwipeToDeleteCallback<T> extends ItemTouchHelper.SimpleCallback {
                         public void onDismissed(Snackbar transientBottomBar, int event) {
                             super.onDismissed(transientBottomBar, event);
                             if (event != DISMISS_EVENT_ACTION) { // If not undone
-                                sendDeleteRequest(deletedID); // Send DELETE request
+                                sendDeleteRequest(deletedItem); // Send DELETE request only if not undone
                             }
                         }
                     });
                     snackbar.show();
                 })
                 .setNegativeButton("Cancel", (dialog, which) -> {
-                    adapter.notifyAdapterItemChanged(position);
+                    adapter.notifyItemChanged(position); // Important: Restore the item
                 })
                 .setIcon(android.R.drawable.ic_dialog_alert)
                 .show();
@@ -88,50 +84,64 @@ public class SwipeToDeleteCallback<T> extends ItemTouchHelper.SimpleCallback {
 
     @Override
     public void onChildDraw(@NonNull Canvas c, @NonNull RecyclerView recyclerView, @NonNull RecyclerView.ViewHolder viewHolder, float dX, float dY, int actionState, boolean isCurrentlyActive) {
+        super.onChildDraw(c, recyclerView, viewHolder, dX, dY, actionState, isCurrentlyActive);
+
         View itemView = viewHolder.itemView;
+        int backgroundHeight = itemView.getBottom() - itemView.getTop();
+        int backgroundWidth = backgroundHeight / 3;
+
+        background.setBounds(itemView.getRight() + (int) dX, itemView.getTop(), itemView.getRight(), itemView.getBottom());
+        background.draw(c);
+
+        int iconMargin = (backgroundHeight - icon.getIntrinsicHeight()) / 2;
+        int iconTop = itemView.getTop() + (backgroundHeight - icon.getIntrinsicHeight()) / 2;
+        int iconBottom = iconTop + icon.getIntrinsicHeight();
 
         if (dX > 0) { // Swiping to the right
-            background.setBounds(itemView.getLeft(), itemView.getTop(), itemView.getLeft() + (int) dX, itemView.getBottom());
+            int iconLeft = itemView.getLeft() + iconMargin;
+            int iconRight = itemView.getLeft() + iconMargin + icon.getIntrinsicWidth();
+            icon.setBounds(iconLeft, iconTop, iconRight, iconBottom);
+
+            background.setBounds(itemView.getLeft(), itemView.getTop(), itemView.getLeft() + ((int) dX), itemView.getBottom());
         } else if (dX < 0) { // Swiping to the left
-            background.setBounds(itemView.getRight() + (int) dX, itemView.getTop(), itemView.getRight(), itemView.getBottom());
-        } else {
-            background.setBounds(0, 0, 0, 0);
+            int iconLeft = itemView.getRight() - iconMargin - icon.getIntrinsicWidth();
+            int iconRight = itemView.getRight() - iconMargin;
+            icon.setBounds(iconLeft, iconTop, iconRight, iconBottom);
         }
 
         background.draw(c);
-
-        int iconMargin = (itemView.getHeight() - icon.getIntrinsicHeight()) / 2;
-        int iconTop = itemView.getTop() + iconMargin;
-        int iconBottom = iconTop + icon.getIntrinsicHeight();
-
-        if (dX > 0) {
-            int iconLeft = itemView.getLeft() + iconMargin;
-            int iconRight = iconLeft + icon.getIntrinsicWidth();
-            icon.setBounds(iconLeft, iconTop, iconRight, iconBottom);
-        } else if (dX < 0) {
-            int iconRight = itemView.getRight() - iconMargin;
-            int iconLeft = iconRight - icon.getIntrinsicWidth();
-            icon.setBounds(iconLeft, iconTop, iconRight, iconBottom);
-        }
-
         icon.draw(c);
     }
 
-    private void sendDeleteRequest(int deletedID) {
+    private void sendDeleteRequest(Expense deletedItem) {
         String baseUrl = context.getString(R.string.base_url);
-        String url = baseUrl + "/delete/" + urlModel; // DELETE URL (no longer includes ID directly)
+        String url = baseUrl + "/delete/expense"; // DELETE URL (no longer includes ID directly)
 
         try {
             JSONObject requestBody = new JSONObject();
             JSONArray idsArray = new JSONArray();
-            idsArray.put(deletedID);
+            idsArray.put(deletedItem.getId()); // Add the ID to the array
             requestBody.put("ids", idsArray);
+
 
             RequestQueue queue = Volley.newRequestQueue(context);
 
             JsonObjectRequest jsonObjectRequest = new JsonObjectRequest(Request.Method.POST, url, requestBody,
-                    response -> Log.d(TAG, "DELETE request successful: " + response.toString()),
-                    error -> Log.e(TAG, "Volley Error: " + error.getMessage()));
+                    response -> {
+                        Log.d(TAG, "DELETE request successful: " + response.toString());
+
+                    }, error -> {
+                Log.e(TAG, "Volley Error: " + error.getMessage());
+                if (error.networkResponse != null && error.networkResponse.data != null) {
+                    try {
+                        String errorString = new String(error.networkResponse.data, "UTF-8");
+                        Log.e(TAG, "Error Response: " + errorString);
+                    } catch (Exception e) {
+                        Log.e(TAG, "Error decoding error response: " + e.getMessage());
+                    }
+                }
+                //Handle error appropriately, maybe re-add the item to the list
+            });
 
             queue.add(jsonObjectRequest);
 

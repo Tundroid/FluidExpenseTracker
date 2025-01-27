@@ -4,23 +4,25 @@ import android.os.Bundle;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
-import android.widget.Toast;
 
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
 import androidx.fragment.app.Fragment;
+import androidx.lifecycle.ViewModelProvider;
+import androidx.recyclerview.widget.ItemTouchHelper;
 import androidx.recyclerview.widget.LinearLayoutManager;
 import androidx.recyclerview.widget.RecyclerView;
+import androidx.swiperefreshlayout.widget.SwipeRefreshLayout;
 
 import com.example.fluidexpensetracker.databinding.FragmentCategoryBinding;
+import com.example.fluidexpensetracker.model.Category;
 
-import java.util.ArrayList;
-import java.util.List;
-
-public class FragmentCategory extends Fragment {
+public class FragmentCategory extends Fragment implements NewCategoryDialogFragment.NewCategoryDialogListener {
     private FragmentCategoryBinding binding;
-    private ExpenseAdapter adapter;
-    private List<Expense> expenses;
+    private CategoryAdapter adapter;
+    private SwipeRefreshLayout swipeRefreshLayout;
+    private CategorySharedViewModel viewModel;
+    private String categoryType;
 
     @Nullable
     @Override
@@ -29,18 +31,69 @@ public class FragmentCategory extends Fragment {
         binding = FragmentCategoryBinding.inflate(inflater, container, false);
         View root = binding.getRoot();
 
-        RecyclerView recyclerView = root.findViewById(R.id.recycler_view_second);
-        recyclerView.setLayoutManager(new LinearLayoutManager(getContext()));
+        binding.fab.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View view) {
+                NewCategoryDialogFragment dialog = new NewCategoryDialogFragment();
+                dialog.setArguments(getArguments());
+                dialog.show(getChildFragmentManager(), "NewCategoryDialog");
+            }
+        });
 
-        expenses = new ArrayList<>();
-        adapter = new ExpenseAdapter();
+        System.out.println("Here in Category");
+        RecyclerView recyclerView = binding.recyclerView;
+        recyclerView.setLayoutManager(new LinearLayoutManager(getContext()));
+        adapter = new CategoryAdapter();
         recyclerView.setAdapter(adapter);
 
-        binding.fabSecond.setOnClickListener(v -> {
-            Toast.makeText(getContext(), "Add button clicked in Second Fragment", Toast.LENGTH_SHORT).show();
-            // Handle adding new items here
+        ItemTouchHelper itemTouchHelper = new ItemTouchHelper(new CategorySwipeToDeleteCallback(adapter, getContext()));
+        itemTouchHelper.attachToRecyclerView(recyclerView);
+
+        viewModel = new ViewModelProvider(requireActivity()).get(CategorySharedViewModel.class);
+
+        swipeRefreshLayout = binding.swipeRefreshLayout;
+        swipeRefreshLayout.setOnRefreshListener(() -> {
+            viewModel.fetchCategories(requireContext(), new FetchCallback() {
+                @Override
+                public void onCategoriesFetched() {
+                    swipeRefreshLayout.setRefreshing(false);
+                }
+
+                @Override
+                public void onFetchFailed() {
+                    swipeRefreshLayout.setRefreshing(false);
+                }
+            });
         });
+
+        categoryType = getArguments().getString("CategoryType");
+        System.out.println(categoryType);
+        viewModel.setCategoryType(categoryType);
+
+        // Observe the LiveData
+        viewModel.getFilteredCategoryList().observe(getViewLifecycleOwner(), categories -> {
+            if (categories != null) {
+                adapter.setList(categories);
+                adapter.notifyDataSetChanged();
+            }
+        });
+
         return root;
+    }
+
+    @Override
+    public void onCategoryAdded(Category category) {
+        viewModel.fetchCategories(requireContext(), new FetchCallback() {
+            @Override
+            public void onCategoriesFetched() {
+            }
+
+            @Override
+            public void onFetchFailed() {
+            }
+        });
+//        adapter.getList().add(category);
+//        adapter.notifyItemInserted(adapter.getList().size() - 1); // Notify adapter of new item
     }
 
     @Override

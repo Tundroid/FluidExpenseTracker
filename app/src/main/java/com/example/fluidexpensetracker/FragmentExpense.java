@@ -2,6 +2,7 @@ package com.example.fluidexpensetracker;
 
 import static com.android.volley.VolleyLog.TAG;
 
+import android.net.Uri;
 import android.os.Bundle;
 import android.util.Log;
 import android.view.LayoutInflater;
@@ -22,17 +23,17 @@ import com.android.volley.RequestQueue;
 import com.android.volley.toolbox.JsonArrayRequest;
 import com.android.volley.toolbox.Volley;
 import com.example.fluidexpensetracker.databinding.FragmentExpenseBinding;
+import com.example.fluidexpensetracker.model.Expense;
+import com.example.fluidexpensetracker.util.Util;
 
 import org.json.JSONException;
 import org.json.JSONObject;
 
-import java.util.ArrayList;
-import java.util.List;
+import java.util.Date;
 
 public class FragmentExpense extends Fragment implements NewExpenseDialogFragment.NewExpenseDialogListener {
     private FragmentExpenseBinding binding;
     private ExpenseAdapter adapter;
-    private List<Expense> expenses;
     private SwipeRefreshLayout swipeRefreshLayout;
 
     @Nullable
@@ -42,64 +43,74 @@ public class FragmentExpense extends Fragment implements NewExpenseDialogFragmen
         binding = FragmentExpenseBinding.inflate(inflater, container, false);
         View root = binding.getRoot();
 
-        swipeRefreshLayout = getActivity().findViewById(R.id.swipeRefreshLayout); // Initialize SwipeRefreshLayout
+        swipeRefreshLayout = binding.swipeRefreshLayout;
         swipeRefreshLayout.setOnRefreshListener(() -> {
-            fetchExpenses(); // Call fetchExpenses() on refresh
+            fetchExpenses();
         });
 
-//        fab.setOnClickListener(new View.OnClickListener() {
-//            @Override
-//            public void onClick(View view) {
-//                NewExpenseDialogFragment dialog = new NewExpenseDialogFragment();
-//                dialog.show(getSupportFragmentManager(), "NewExpenseDialog");
-//            }
-//        });
+        binding.fab.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View view) {
+                NewExpenseDialogFragment dialog = new NewExpenseDialogFragment();
+                dialog.setArguments(getArguments());
+                dialog.show(getChildFragmentManager(), "NewExpenseDialog");
+            }
+        });
+        System.out.println("Here in Expense");
 
-
-        // Find the RecyclerView
-        RecyclerView recyclerView = getActivity().findViewById(R.id.recycler_view);
-
-        // Set layout manager (usually LinearLayoutManager for a vertical list)
+        RecyclerView recyclerView = binding.recyclerView;
         recyclerView.setLayoutManager(new LinearLayoutManager(getContext()));
-
-        // Create an ExpenseAdapter with sample data (consider replacing with your data source)
         adapter = new ExpenseAdapter();
-
-        // Set the adapter to the RecyclerView
         recyclerView.setAdapter(adapter);
 
-        ItemTouchHelper itemTouchHelper = new ItemTouchHelper(new SwipeToDeleteCallback(adapter, getContext()));
+        ItemTouchHelper itemTouchHelper = new ItemTouchHelper(new SwipeToDeleteCallback(adapter, getContext(),"expense"));
         itemTouchHelper.attachToRecyclerView(recyclerView);
 
-        fetchExpenses(); // Fetch expenses from the API
+        fetchExpenses();
 
-//        binding.fabSecond.setOnClickListener(v -> {
-//            Toast.makeText(getContext(), "Add button clicked in Second Fragment", Toast.LENGTH_SHORT).show();
-//            // Handle adding new items here
-//        });
         return root;
     }
 
     private void fetchExpenses() {
-        String url = getString(R.string.base_url) + "/get/expense"; // Replace with your API endpoint
+        String url = getString(R.string.base_url) + "/get_expenses";
+
+        Uri.Builder uriBuilder = Uri.parse(url).buildUpon();
+        uriBuilder.appendQueryParameter("UserID", String.valueOf(Util.getAppUser().getId()));
+
+        url = uriBuilder.build().toString();
 
         RequestQueue queue = Volley.newRequestQueue(getContext());
 
         JsonArrayRequest jsonArrayRequest = new JsonArrayRequest(Request.Method.GET, url, null,
                 response -> {
                     try {
-                        adapter.getExpenseList().clear();
+                        adapter.getList().clear();
                         for (int i = 0; i < response.length(); i++) {
                             JSONObject jsonObject = response.getJSONObject(i);
+                            int id = jsonObject.getInt("ExpenseID");
                             String date = jsonObject.getString("ExpenseDate");
                             int amount = jsonObject.getInt("Amount");
-                            String category = jsonObject.getString("CategoryID");
+                            String category = jsonObject.getString("CategoryName");
                             String description = jsonObject.getString("ExpenseDescription");
 
-                            Expense expense = new Expense(date, amount, category, description);
+                            Expense expense = new Expense(id, date, amount, category, description);
                             onExpenseAdded(expense);
                         }
-                        adapter.notifyDataSetChanged(); // Notify adapter after fetching data
+                        // Sort expenses by date (desc) and description (asc)
+                        adapter.getList().sort((expense1, expense2) -> {
+                            // Compare by date in descending order
+                            Date date1 = expense1.getDateObject();
+                            Date date2 = expense2.getDateObject();
+                            int dateComparison = date1 != null && date2 != null ? date2.compareTo(date1) : 0;
+
+                            // If dates are the same, compare by description in ascending order
+                            if (dateComparison == 0) {
+                                return expense1.getDescription().compareToIgnoreCase(expense2.getDescription());
+                            }
+
+                            return dateComparison;
+                        });
+                        adapter.notifyDataSetChanged();
 
                     } catch (JSONException e) {
                         Log.e(TAG, "Error parsing JSON: " + e.getMessage());
@@ -117,8 +128,8 @@ public class FragmentExpense extends Fragment implements NewExpenseDialogFragmen
 
     @Override
     public void onExpenseAdded(Expense expense) {
-        adapter.getExpenseList().add(expense);
-        adapter.notifyItemInserted(adapter.getExpenseList().size() - 1); // Notify adapter of new item
+        adapter.getList().add(expense);
+        adapter.notifyItemInserted(adapter.getList().size() - 1); // Notify adapter of new item
     }
 
     @Override

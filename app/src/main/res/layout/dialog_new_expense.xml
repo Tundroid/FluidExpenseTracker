@@ -20,11 +20,12 @@
         android:hint="Amount"
         android:inputType="numberDecimal" />
 
-    <EditText
+    <Spinner
         android:id="@+id/etCategory"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
-        android:hint="Category" />
+        android:prompt="@string/category_spinner_prompt"
+         />
 
     <EditText
         android:id="@+id/etDescription"

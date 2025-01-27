@@ -11,19 +11,25 @@ import androidx.recyclerview.widget.RecyclerView;
 import java.util.ArrayList;
 import java.util.List;
 
-public class ExpenseAdapter extends RecyclerView.Adapter<ExpenseAdapter.ViewHolder> {
+import com.example.fluidexpensetracker.databinding.ExpenseItemBinding;
+import com.example.fluidexpensetracker.model.Expense;
+import com.example.fluidexpensetracker.util.GenericAdapter;
+import com.example.fluidexpensetracker.util.Util;
 
-    private List<Expense> expenseList; // Your data list
+public class ExpenseAdapter extends RecyclerView.Adapter<ExpenseAdapter.ViewHolder> implements GenericAdapter<Expense> {
+
+    private List<Expense> expenseList;
+    private static ExpenseItemBinding binding;
 
     public ExpenseAdapter() {
         this.expenseList = new ArrayList<>();
-        this.expenseList.add(new Expense("2024-10-26", 15.75, "Food", "Grocery shopping"));
     }
 
     @NonNull
     @Override
     public ViewHolder onCreateViewHolder(@NonNull ViewGroup parent, int viewType) {
         View view = LayoutInflater.from(parent.getContext()).inflate(R.layout.expense_item, parent, false); // Inflate your item layout
+        binding = ExpenseItemBinding.inflate(LayoutInflater.from(parent.getContext()), parent, false);
         return new ViewHolder(view);
     }
 
@@ -33,7 +39,7 @@ public class ExpenseAdapter extends RecyclerView.Adapter<ExpenseAdapter.ViewHold
         holder.dateTextView.setText(expense.getDate()); // Set data to views
         holder.amountTextView.setText(String.valueOf(expense.getAmount()));
         holder.categoryTextView.setText(expense.getCategory());
-        // ... set other views
+        holder.descTV.setText(expense.getDescription());
     }
 
     @Override
@@ -41,32 +47,55 @@ public class ExpenseAdapter extends RecyclerView.Adapter<ExpenseAdapter.ViewHold
         return expenseList.size();
     }
 
-    public List<Expense> getExpenseList() {
+    @Override
+    public List<Expense> getList() {
         return expenseList;
     }
 
+    @Override
+    public void setList(List<Expense> list) {
+        expenseList = list;
+    }
+
+    @Override
+    public Expense getItem(int position) {
+        return expenseList.get(position);
+    }
+
+    @Override
+    public int getItemID(int position) {
+        return expenseList.get(position).getId();
+    }
+
+    @Override
     public void deleteItem(int position) {
         expenseList.remove(position);
         notifyItemRemoved(position);
     }
 
+    @Override
     public void restoreItem(Expense item, int position) {
         expenseList.add(position, item);
         notifyItemInserted(position);
+    }
+
+    @Override
+    public void notifyAdapterItemChanged(int position) {
+        super.notifyItemChanged(position);
     }
 
     public static class ViewHolder extends RecyclerView.ViewHolder {
         TextView dateTextView;
         TextView amountTextView;
         TextView categoryTextView;
-        // ... other views
+        TextView descTV;
 
         public ViewHolder(@NonNull View itemView) {
             super(itemView);
             dateTextView = itemView.findViewById(R.id.tvDate);
             amountTextView = itemView.findViewById(R.id.tvAmount);
             categoryTextView = itemView.findViewById(R.id.tvCategory);
-            // ... initialize other views
+            descTV = itemView.findViewById(R.id.tvDescription);
         }
     }
 }

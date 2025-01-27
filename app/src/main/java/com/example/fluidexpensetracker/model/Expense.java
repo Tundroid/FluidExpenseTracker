@@ -1,4 +1,4 @@
-package com.example.fluidexpensetracker;
+package com.example.fluidexpensetracker.model;
 
 import java.text.ParseException;
 import java.text.SimpleDateFormat;
@@ -7,24 +7,36 @@ import java.util.Locale;
 
 public class Expense {
 
+    private int id;
     private String date; // Store as String for simplicity, handle parsing separately
     private double amount;
     private String category;
     private String description;
+    public static int ID;
 
     // Constructors
     public Expense() {
         // Default constructor (important for some libraries/frameworks)
     }
 
-    public Expense(String date, double amount, String category, String description) {
+    public Expense(int id, String date, double amount, String category, String description) {
+        this.id = id;
         this.date = date;
         this.amount = amount;
         this.category = category;
         this.description = description;
+        ID = id;
     }
 
     // Getters and Setters
+    public int getId() {
+        return id;
+    }
+
+    public void setId(int id) {
+        this.id = id;
+    }
+
     public String getDate() {
         return date;
     }

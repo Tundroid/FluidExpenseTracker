@@ -9,6 +9,10 @@
             android:icon="@drawable/ic_launcher_background"
             android:title="@string/main_menu_dashboard" />
         <item
+            android:id="@+id/nav_expense"
+            android:icon="@drawable/ic_launcher_background"
+            android:title="@string/main_menu_expense" />
+        <item
             android:id="@+id/nav_gallery"
             android:icon="@drawable/ic_launcher_background"
             android:title="@string/main_menu_budget" />
@@ -18,7 +22,23 @@
             android:title="@string/main_menu_save_goal" />
         <item
             android:id="@+id/nav_category"
-            android:icon="@drawable/ic_launcher_background"
-            android:title="@string/main_menu_category" />
+            android:title="@string/main_menu_category">
+            <menu>
+                <group android:checkableBehavior="single">
+                    <item
+                        android:id="@+id/nav_category_budget"
+                        android:title="@string/sub_menu_cat_budget" />
+                    <item
+                        android:id="@+id/nav_category_expense"
+                        android:title="@string/sub_menu_cat_expense" />
+                    <item
+                        android:id="@+id/nav_category_income"
+                        android:title="@string/sub_menu_cat_income" />
+                    <item
+                        android:id="@+id/nav_category_saving"
+                        android:title="@string/sub_menu_cat_saving" />
+                </group>
+            </menu>
+        </item>
     </group>
 </menu>
