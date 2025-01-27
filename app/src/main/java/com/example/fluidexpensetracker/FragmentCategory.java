@@ -46,7 +46,7 @@ public class FragmentCategory extends Fragment implements NewCategoryDialogFragm
         adapter = new CategoryAdapter();
         recyclerView.setAdapter(adapter);
 
-        ItemTouchHelper itemTouchHelper = new ItemTouchHelper(new CategorySwipeToDeleteCallback(adapter, getContext()));
+        ItemTouchHelper itemTouchHelper = new ItemTouchHelper(new SwipeToDeleteCallback(adapter, getContext(), "category"));
         itemTouchHelper.attachToRecyclerView(recyclerView);
 
         viewModel = new ViewModelProvider(requireActivity()).get(CategorySharedViewModel.class);

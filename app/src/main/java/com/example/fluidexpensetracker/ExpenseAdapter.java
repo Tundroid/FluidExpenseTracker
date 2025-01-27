@@ -8,13 +8,12 @@ import android.widget.TextView;
 import androidx.annotation.NonNull;
 import androidx.recyclerview.widget.RecyclerView;
 
-import java.util.ArrayList;
-import java.util.List;
-
 import com.example.fluidexpensetracker.databinding.ExpenseItemBinding;
 import com.example.fluidexpensetracker.model.Expense;
 import com.example.fluidexpensetracker.util.GenericAdapter;
-import com.example.fluidexpensetracker.util.Util;
+
+import java.util.ArrayList;
+import java.util.List;
 
 public class ExpenseAdapter extends RecyclerView.Adapter<ExpenseAdapter.ViewHolder> implements GenericAdapter<Expense> {
 

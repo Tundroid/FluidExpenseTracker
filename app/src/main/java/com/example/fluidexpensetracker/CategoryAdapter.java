@@ -9,11 +9,13 @@ import androidx.annotation.NonNull;
 import androidx.recyclerview.widget.RecyclerView;
 
 import com.example.fluidexpensetracker.model.Category;
+import com.example.fluidexpensetracker.model.Expense;
+import com.example.fluidexpensetracker.util.GenericAdapter;
 
 import java.util.ArrayList;
 import java.util.List;
 
-public class CategoryAdapter extends RecyclerView.Adapter<CategoryAdapter.ViewHolder> {
+public class CategoryAdapter extends RecyclerView.Adapter<CategoryAdapter.ViewHolder> implements GenericAdapter<Category> {
 
     private List<Category> categoryList; // Your data list
 
@@ -34,29 +36,46 @@ public class CategoryAdapter extends RecyclerView.Adapter<CategoryAdapter.ViewHo
         holder.catTextView.setText(category.getName());
     }
 
-
-
     @Override
     public int getItemCount() {
         return categoryList.size();
     }
 
+    @Override
     public List<Category> getList() {
         return categoryList;
     }
 
+    @Override
     public void setList(List<Category> list) {
         categoryList = list;
     }
 
+    @Override
+    public Category getItem(int position) {
+        return categoryList.get(position);
+    }
+
+    @Override
+    public int getItemID(int position) {
+        return categoryList.get(position).getId();
+    }
+
+    @Override
     public void deleteItem(int position) {
         categoryList.remove(position);
         notifyItemRemoved(position);
     }
 
+    @Override
     public void restoreItem(Category item, int position) {
         categoryList.add(position, item);
         notifyItemInserted(position);
+    }
+
+    @Override
+    public void notifyAdapterItemChanged(int position) {
+        super.notifyItemChanged(position);
     }
 
     public static class ViewHolder extends RecyclerView.ViewHolder {
