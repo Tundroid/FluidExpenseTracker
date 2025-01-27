@@ -19,4 +19,6 @@ public interface GenericAdapter<T> {
     public void notifyAdapterItemChanged(int position);
 
     public void notifyAdapterItemInserted(int position);
+
+    public void notifyAdapterDataSetChanged();
 }

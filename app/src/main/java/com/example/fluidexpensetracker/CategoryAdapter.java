@@ -83,6 +83,11 @@ public class CategoryAdapter extends RecyclerView.Adapter<CategoryAdapter.ViewHo
         super.notifyItemInserted(position);
     }
 
+    @Override
+    public void notifyAdapterDataSetChanged() {
+        super.notifyDataSetChanged();
+    }
+
     public static class ViewHolder extends RecyclerView.ViewHolder {
         TextView catTextView;
 

@@ -101,7 +101,7 @@ public class CategorySharedViewModel extends ViewModel {
                             fetchedCategories.add(category);
                         }
                         setCategories(fetchedCategories); // Set categories and apply filter
-                        callback.onCategoriesFetched();
+                        callback.onFetched();
                     } catch (JSONException e) {
                         Log.e(TAG, "Error parsing JSON: " + e.getMessage());
                         Toast.makeText(context, "Error parsing data", Toast.LENGTH_SHORT).show();

@@ -11,13 +11,17 @@ import androidx.appcompat.widget.Toolbar;
 import androidx.core.view.GravityCompat;
 import androidx.drawerlayout.widget.DrawerLayout;
 import androidx.fragment.app.FragmentTransaction;
+import androidx.lifecycle.MutableLiveData;
 import androidx.lifecycle.ViewModelProvider;
 
 import com.example.fluidexpensetracker.databinding.ActivityMainBinding;
+import com.example.fluidexpensetracker.model.Category;
 import com.example.fluidexpensetracker.model.User;
 import com.example.fluidexpensetracker.util.FetchCallback;
 import com.example.fluidexpensetracker.util.Util;
 import com.google.android.material.navigation.NavigationView;
+
+import java.util.List;
 
 public class MainActivity extends AppCompatActivity {
 
@@ -68,9 +72,16 @@ public class MainActivity extends AppCompatActivity {
             int id = item.getItemId();
 
             if (true) {
+                String catType = item.getTitle().toString();
+                String menu = "category";
+                if (id == R.id.nav_expense) {
+                    catType = "Expense";
+                    menu = "expense";
+                }
                 FragmentList fragmentList = new FragmentList();
                 Bundle bundle = new Bundle();
-                bundle.putString("CategoryType", item.getTitle().toString());
+                bundle.putString("CategoryType", catType);
+                bundle.putString("Menu", menu);
                 fragmentList.setArguments(bundle);
                 FragmentTransaction transaction = getSupportFragmentManager().beginTransaction();
                 transaction.replace(R.id.fragment_container, fragmentList); // Replace fragment_container with the id of a FrameLayout in your main activity layout
@@ -85,23 +96,27 @@ public class MainActivity extends AppCompatActivity {
         });
 
         if (savedInstanceState == null) { // Check if it's the initial creation
-            FragmentExpense fragment = new FragmentExpense();
+            FragmentList fragmentList = new FragmentList();
             Bundle bundle = new Bundle();
             bundle.putString("CategoryType", "Expense");
-            fragment.setArguments(bundle);
+            bundle.putString("Menu", "expense");
+            fragmentList.setArguments(bundle);
             FragmentTransaction transaction = getSupportFragmentManager().beginTransaction();
-            transaction.add(R.id.fragment_container, fragment); // Use add() instead of replace() for initial fragment
+            transaction.add(R.id.fragment_container, fragmentList); // Use add() instead of replace() for initial fragment
             transaction.commit();
         }
 
-        CategorySharedViewModel viewModel = new ViewModelProvider(this).get(CategorySharedViewModel.class);
-        viewModel.fetchCategories(this, new FetchCallback() {
+        SharedViewModel viewModel = new ViewModelProvider(this).get(SharedViewModel.class);
+        System.out.println("Before: " + viewModel.getDataList().size());
+        viewModel.fetchItems(this, "category", new FetchCallback() {
             @Override
-            public void onCategoriesFetched() {
+            public void onFetched() {
+                System.out.println("After fetched: " + viewModel.getDataList().size());
             }
 
             @Override
             public void onFetchFailed() {
+                System.out.println("After not fetched: " + viewModel.getDataList().size());
             }
         });
 

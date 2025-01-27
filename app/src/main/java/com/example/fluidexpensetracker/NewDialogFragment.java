@@ -36,14 +36,14 @@ import java.util.List;
 
 public class NewDialogFragment extends DialogFragment {
 
-    public interface NewDialogListener<T> {
-        void onItemAdded(T item);
+    public interface NewDialogListener {
+        void onItemAdded();
     }
 
     private NewDialogListener listener;
-    private CategorySharedViewModel viewModel;
+    private SharedViewModel viewModel;
     private Category selectedCategory;
-    JSONObject requestBody;
+    private JSONObject requestBody;
 
     @Override
     public void onAttach(@NonNull Context context) {
@@ -63,16 +63,17 @@ public class NewDialogFragment extends DialogFragment {
         Dialog dialog;
         LayoutInflater inflater = requireActivity().getLayoutInflater();
         View view;
-        switch (getArguments().getString("CategoryType")) {
-            case "Category":
+        switch (getArguments().getString("Menu")) {
+            case "category":
                 view = inflater.inflate(R.layout.dialog_new_category, null);
                 dialog = buildCategoryDialog(view);
                 break;
             default:
                 view = inflater.inflate(R.layout.dialog_new_expense, null);
-                viewModel = new ViewModelProvider(requireActivity()).get(CategorySharedViewModel.class);
+                viewModel = new ViewModelProvider(requireActivity()).get(SharedViewModel.class);
                 dialog = buildExpenseDialog(view);
         }
+        requestBody = new JSONObject();
         return dialog;
     }
 
@@ -80,17 +81,17 @@ public class NewDialogFragment extends DialogFragment {
     public void onStart() {
         super.onStart();
 
-        switch (getArguments().getString("CategoryType")) {
-            case "Expense":
+        switch (getArguments().getString("Menu")) {
+            case "expense":
                 Spinner categorySpinner = requireDialog().findViewById(R.id.etCategory);
 
                 viewModel.setCategoryType(getArguments().getString("CategoryType"));
-                viewModel.getFilteredCategoryList().observe(this, categories -> {
+                viewModel.getFilteredItemList().observe(this, categories -> {
                     if (categories != null) {
                         List<String> categoryNames = new ArrayList<>();
-                        List<Category> categoryList = new ArrayList<>(categories);
+                        List<Category> categoryList = (List<Category>)categories;
 
-                        for (Category category : categories) {
+                        for (Category category : categoryList) {
                             categoryNames.add(category.getName());
                         }
 
@@ -131,7 +132,7 @@ public class NewDialogFragment extends DialogFragment {
                     // Handle successful response
                     Log.d(TAG, "POST request successful: " + response.toString());
 //                    Toast.makeText(getActivity(), "Expense added successfully", Toast.LENGTH_SHORT).show();
-                    listener.onItemAdded(item); // Notify MainActivity after successful post
+                    listener.onItemAdded(); // Notify MainActivity after successful post
                 }, error -> {
             // Handle error
             Log.e(TAG, "Volley Error: " + error.getMessage());

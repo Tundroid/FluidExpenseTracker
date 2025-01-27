@@ -56,7 +56,7 @@ public class FragmentCategory extends Fragment implements NewCategoryDialogFragm
         swipeRefreshLayout.setOnRefreshListener(() -> {
             viewModel.fetchCategories(requireContext(), new FetchCallback() {
                 @Override
-                public void onCategoriesFetched() {
+                public void onFetched() {
                     swipeRefreshLayout.setRefreshing(false);
                 }
 
@@ -86,7 +86,7 @@ public class FragmentCategory extends Fragment implements NewCategoryDialogFragm
     public void onCategoryAdded(Category category) {
         viewModel.fetchCategories(requireContext(), new FetchCallback() {
             @Override
-            public void onCategoriesFetched() {
+            public void onFetched() {
             }
 
             @Override
