@@ -1,4 +1,4 @@
-package com.example.fluidexpensetracker;
+package com.example.fluidexpensetracker.model.adapter;
 
 import android.view.LayoutInflater;
 import android.view.View;
@@ -8,6 +8,7 @@ import android.widget.TextView;
 import androidx.annotation.NonNull;
 import androidx.recyclerview.widget.RecyclerView;
 
+import com.example.fluidexpensetracker.R;
 import com.example.fluidexpensetracker.databinding.ExpenseItemBinding;
 import com.example.fluidexpensetracker.model.Expense;
 import com.example.fluidexpensetracker.util.GenericAdapter;

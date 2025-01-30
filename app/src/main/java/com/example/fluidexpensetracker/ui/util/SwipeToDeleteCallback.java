@@ -1,4 +1,4 @@
-package com.example.fluidexpensetracker;
+package com.example.fluidexpensetracker.ui.util;
 
 import static com.android.volley.VolleyLog.TAG;
 
@@ -8,6 +8,7 @@ import android.graphics.Canvas;
 import android.graphics.Color;
 import android.graphics.drawable.ColorDrawable;
 import android.graphics.drawable.Drawable;
+import android.net.Uri;
 import android.util.Log;
 import android.view.View;
 
@@ -19,7 +20,9 @@ import androidx.recyclerview.widget.RecyclerView;
 import com.android.volley.Request;
 import com.android.volley.RequestQueue;
 import com.android.volley.toolbox.JsonObjectRequest;
+import com.android.volley.toolbox.StringRequest;
 import com.android.volley.toolbox.Volley;
+import com.example.fluidexpensetracker.R;
 import com.example.fluidexpensetracker.util.GenericAdapter;
 import com.example.fluidexpensetracker.util.Util;
 import com.google.android.material.snackbar.Snackbar;
@@ -34,13 +37,13 @@ public class SwipeToDeleteCallback<T> extends ItemTouchHelper.SimpleCallback {
     private final Context context;
     private final Drawable icon;
     private final ColorDrawable background;
-    private final String urlModel; // Generic URL for delete requests
 
-    public SwipeToDeleteCallback(GenericAdapter<T> adapter, Context context, String urlModel) {
+    public SwipeToDeleteCallback(GenericAdapter<T> adapter, Context context) {
         super(0, ItemTouchHelper.LEFT | ItemTouchHelper.RIGHT);
+        if (adapter == null)
+            System.out.println("Generic adapter is null ya");
         this.adapter = adapter;
         this.context = context;
-        this.urlModel = urlModel;
         icon = ContextCompat.getDrawable(context,
                 R.drawable.ic_launcher_foreground); // Replace with your delete icon
         background = new ColorDrawable(Color.RED);
@@ -119,24 +122,19 @@ public class SwipeToDeleteCallback<T> extends ItemTouchHelper.SimpleCallback {
 
     private void sendDeleteRequest(int deletedID) {
         String baseUrl = context.getString(R.string.base_url);
-        String url = baseUrl + "/delete/" + urlModel; // DELETE URL (no longer includes ID directly)
+        String url = baseUrl + "/delete/" + Util.ACTIVE_MODEL.getValue(); // DELETE URL (no longer includes ID directly)
 
-        try {
-            JSONObject requestBody = new JSONObject();
-            JSONArray idsArray = new JSONArray();
-            idsArray.put(deletedID);
-            requestBody.put("ids", idsArray);
+        Uri.Builder uriBuilder = Uri.parse(url).buildUpon();
+        uriBuilder.appendQueryParameter("UserID", String.valueOf(Util.getAppUser().getId()));
+        uriBuilder.appendQueryParameter(Util.ACTIVE_MENU.getValue() + "ID", String.valueOf(deletedID));
 
-            RequestQueue queue = Volley.newRequestQueue(context);
+        url = uriBuilder.build().toString();
 
-            JsonObjectRequest jsonObjectRequest = new JsonObjectRequest(Request.Method.POST, url, requestBody,
-                    response -> Log.d(TAG, "DELETE request successful: " + response.toString()),
-                    error -> Log.e(TAG, "Volley Error: " + error.getMessage()));
+        RequestQueue queue = Volley.newRequestQueue(context);
 
-            queue.add(jsonObjectRequest);
+        StringRequest request = new StringRequest(Request.Method.DELETE, url, null,
+                response -> Log.d(TAG, "DELETE request successful: " + response));
 
-        } catch (JSONException e) {
-            Log.e(TAG, "JSONException creating request body: " + e.getMessage());
-        }
+        queue.add(request);
     }
 }

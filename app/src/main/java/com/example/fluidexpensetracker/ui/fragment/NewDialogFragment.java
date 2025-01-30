@@ -1,4 +1,4 @@
-package com.example.fluidexpensetracker;
+package com.example.fluidexpensetracker.ui.fragment;
 
 import static com.android.volley.VolleyLog.TAG;
 
@@ -24,8 +24,10 @@ import com.android.volley.Request;
 import com.android.volley.RequestQueue;
 import com.android.volley.toolbox.JsonObjectRequest;
 import com.android.volley.toolbox.Volley;
+import com.example.fluidexpensetracker.R;
 import com.example.fluidexpensetracker.model.Category;
 import com.example.fluidexpensetracker.model.Expense;
+import com.example.fluidexpensetracker.model.util.SharedViewModel;
 import com.example.fluidexpensetracker.util.Util;
 
 import org.json.JSONException;
@@ -63,8 +65,8 @@ public class NewDialogFragment extends DialogFragment {
         Dialog dialog;
         LayoutInflater inflater = requireActivity().getLayoutInflater();
         View view;
-        switch (getArguments().getString("Menu")) {
-            case "category":
+        switch (Util.ACTIVE_MENU) {
+            case CATEGORY:
                 view = inflater.inflate(R.layout.dialog_new_category, null);
                 dialog = buildCategoryDialog(view);
                 break;
@@ -81,11 +83,11 @@ public class NewDialogFragment extends DialogFragment {
     public void onStart() {
         super.onStart();
 
-        switch (getArguments().getString("Menu")) {
-            case "expense":
+        switch (Util.ACTIVE_MENU) {
+            case EXPENSE:
                 Spinner categorySpinner = requireDialog().findViewById(R.id.etCategory);
 
-                viewModel.setCategoryType(getArguments().getString("CategoryType"));
+                viewModel.setCategoryType(Util.ACTIVE_CATEGORY.getValue());
                 viewModel.getFilteredItemList().observe(this, categories -> {
                     if (categories != null) {
                         List<String> categoryNames = new ArrayList<>();
@@ -203,7 +205,7 @@ public class NewDialogFragment extends DialogFragment {
                     }
 
                     try {
-                        Category newCategory = new Category(0, category, getArguments().getString("CategoryType"));
+                        Category newCategory = new Category(0, category, Util.ACTIVE_CATEGORY.getValue());
                         try {
                             requestBody.put("CategoryName", newCategory.getName());
                             requestBody.put("CategoryType", newCategory.getType());

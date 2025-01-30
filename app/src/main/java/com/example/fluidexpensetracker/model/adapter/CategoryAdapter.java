@@ -1,4 +1,4 @@
-package com.example.fluidexpensetracker;
+package com.example.fluidexpensetracker.model.adapter;
 
 import android.view.LayoutInflater;
 import android.view.View;
@@ -8,8 +8,8 @@ import android.widget.TextView;
 import androidx.annotation.NonNull;
 import androidx.recyclerview.widget.RecyclerView;
 
+import com.example.fluidexpensetracker.R;
 import com.example.fluidexpensetracker.model.Category;
-import com.example.fluidexpensetracker.model.Expense;
 import com.example.fluidexpensetracker.util.GenericAdapter;
 
 import java.util.ArrayList;
@@ -17,7 +17,7 @@ import java.util.List;
 
 public class CategoryAdapter extends RecyclerView.Adapter<CategoryAdapter.ViewHolder> implements GenericAdapter<Category> {
 
-    private List<Category> categoryList; // Your data list
+    private List<Category> categoryList;
 
     public CategoryAdapter() {
         this.categoryList = new ArrayList<>();
@@ -34,6 +34,15 @@ public class CategoryAdapter extends RecyclerView.Adapter<CategoryAdapter.ViewHo
     public void onBindViewHolder(@NonNull ViewHolder holder, int position) {
         Category category = categoryList.get(position);
         holder.catTextView.setText(category.getName());
+    }
+
+    public static class ViewHolder extends RecyclerView.ViewHolder {
+        TextView catTextView;
+
+        public ViewHolder(@NonNull View itemView) {
+            super(itemView);
+            catTextView = itemView.findViewById(R.id.catDate);
+        }
     }
 
     @Override
@@ -86,14 +95,5 @@ public class CategoryAdapter extends RecyclerView.Adapter<CategoryAdapter.ViewHo
     @Override
     public void notifyAdapterDataSetChanged() {
         super.notifyDataSetChanged();
-    }
-
-    public static class ViewHolder extends RecyclerView.ViewHolder {
-        TextView catTextView;
-
-        public ViewHolder(@NonNull View itemView) {
-            super(itemView);
-            catTextView = itemView.findViewById(R.id.catDate);
-        }
     }
 }

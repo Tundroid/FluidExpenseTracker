@@ -1,4 +1,4 @@
-package com.example.fluidexpensetracker;
+package com.example.fluidexpensetracker.ui;
 
 import android.content.Intent;
 import android.os.Bundle;
@@ -11,17 +11,19 @@ import androidx.appcompat.widget.Toolbar;
 import androidx.core.view.GravityCompat;
 import androidx.drawerlayout.widget.DrawerLayout;
 import androidx.fragment.app.FragmentTransaction;
-import androidx.lifecycle.MutableLiveData;
 import androidx.lifecycle.ViewModelProvider;
 
+import com.example.fluidexpensetracker.ui.fragment.FragmentList;
+import com.example.fluidexpensetracker.R;
+import com.example.fluidexpensetracker.model.util.SharedViewModel;
 import com.example.fluidexpensetracker.databinding.ActivityMainBinding;
-import com.example.fluidexpensetracker.model.Category;
 import com.example.fluidexpensetracker.model.User;
+import com.example.fluidexpensetracker.util.Category;
 import com.example.fluidexpensetracker.util.FetchCallback;
+import com.example.fluidexpensetracker.util.Menu;
+import com.example.fluidexpensetracker.util.Model;
 import com.example.fluidexpensetracker.util.Util;
 import com.google.android.material.navigation.NavigationView;
-
-import java.util.List;
 
 public class MainActivity extends AppCompatActivity {
 
@@ -72,17 +74,15 @@ public class MainActivity extends AppCompatActivity {
             int id = item.getItemId();
 
             if (true) {
-                String catType = item.getTitle().toString();
-                String menu = "category";
+                Util.ACTIVE_MENU = Menu.CATEGORY;
+                Util.ACTIVE_CATEGORY = Category.EXPENSE;
+                Util.ACTIVE_MODEL = Model.CATEGORY;
                 if (id == R.id.nav_expense) {
-                    catType = "Expense";
-                    menu = "expense";
+                    Util.ACTIVE_MENU = Menu.EXPENSE;
+                    Util.ACTIVE_CATEGORY = Category.EXPENSE;
+                    Util.ACTIVE_MODEL = Model.EXPENSE;
                 }
                 FragmentList fragmentList = new FragmentList();
-                Bundle bundle = new Bundle();
-                bundle.putString("CategoryType", catType);
-                bundle.putString("Menu", menu);
-                fragmentList.setArguments(bundle);
                 FragmentTransaction transaction = getSupportFragmentManager().beginTransaction();
                 transaction.replace(R.id.fragment_container, fragmentList); // Replace fragment_container with the id of a FrameLayout in your main activity layout
                 transaction.addToBackStack(null); // Optional: Add to back stack
@@ -95,20 +95,9 @@ public class MainActivity extends AppCompatActivity {
             return true;
         });
 
-        if (savedInstanceState == null) { // Check if it's the initial creation
-            FragmentList fragmentList = new FragmentList();
-            Bundle bundle = new Bundle();
-            bundle.putString("CategoryType", "Expense");
-            bundle.putString("Menu", "expense");
-            fragmentList.setArguments(bundle);
-            FragmentTransaction transaction = getSupportFragmentManager().beginTransaction();
-            transaction.add(R.id.fragment_container, fragmentList); // Use add() instead of replace() for initial fragment
-            transaction.commit();
-        }
-
         SharedViewModel viewModel = new ViewModelProvider(this).get(SharedViewModel.class);
         System.out.println("Before: " + viewModel.getDataList().size());
-        viewModel.fetchItems(this, "category", new FetchCallback() {
+        viewModel.fetchItems(this, Model.CATEGORY, Menu.CATEGORY, new FetchCallback() {
             @Override
             public void onFetched() {
                 System.out.println("After fetched: " + viewModel.getDataList().size());
@@ -120,5 +109,14 @@ public class MainActivity extends AppCompatActivity {
             }
         });
 
+        if (savedInstanceState == null) { // Check if it's the initial creation
+            Util.ACTIVE_MENU = Menu.EXPENSE;
+            Util.ACTIVE_CATEGORY = Category.EXPENSE;
+            Util.ACTIVE_MODEL = Model.EXPENSE;
+            FragmentList fragmentList = new FragmentList();
+            FragmentTransaction transaction = getSupportFragmentManager().beginTransaction();
+            transaction.add(R.id.fragment_container, fragmentList); // Use add() instead of replace() for initial fragment
+            transaction.commit();
+        }
     }
 }

@@ -1,4 +1,4 @@
-package com.example.fluidexpensetracker;
+package com.example.fluidexpensetracker.model.util;
 
 import static com.android.volley.VolleyLog.TAG;
 
@@ -13,9 +13,12 @@ import com.android.volley.Request;
 import com.android.volley.RequestQueue;
 import com.android.volley.toolbox.JsonArrayRequest;
 import com.android.volley.toolbox.Volley;
+import com.example.fluidexpensetracker.R;
 import com.example.fluidexpensetracker.model.Category;
 import com.example.fluidexpensetracker.model.Expense;
 import com.example.fluidexpensetracker.util.FetchCallback;
+import com.example.fluidexpensetracker.util.Menu;
+import com.example.fluidexpensetracker.util.Model;
 import com.example.fluidexpensetracker.util.Util;
 
 import org.json.JSONArray;
@@ -84,8 +87,8 @@ public class SharedViewModel<T> extends ViewModel {
         filterItems(); // Apply the filter whenever the category type changes
     }
 
-    public void fetchItems(Context context, String model, FetchCallback callback) {
-        String url = context.getString(R.string.base_url) + "/get_list_" + model;
+    public void fetchItems(Context context, Model model, Menu menu, FetchCallback callback) {
+        String url = context.getString(R.string.base_url) + "/get_list_" + model.getValue();
 
         Uri.Builder uriBuilder = Uri.parse(url).buildUpon();
         uriBuilder.appendQueryParameter("UserID", String.valueOf(Util.getAppUser().getId()));
@@ -96,8 +99,9 @@ public class SharedViewModel<T> extends ViewModel {
 
         JsonArrayRequest jsonArrayRequest = new JsonArrayRequest(Request.Method.GET, url, null,
                 response -> {
-                    switch (model) {
-                        case "category":
+                    switch (menu) {
+                        case CATEGORY:
+                            System.out.println("Receiving categories...");
                             processCategoryResponse(response, callback);
                             break;
                         default:

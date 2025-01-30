@@ -5,11 +5,28 @@ import android.content.SharedPreferences;
 
 import com.example.fluidexpensetracker.model.User;
 
+import java.util.Arrays;
+import java.util.List;
+
+
 public class Util {
+
     private static User appUser;
     private static final String PREFS_NAME = "user_prefs";
 
     public static int ACTIVE_ID;
+    public static Menu ACTIVE_MENU;
+    public static Model ACTIVE_MODEL;
+    public static Category ACTIVE_CATEGORY;
+
+    public static final List<String> MENU_ARRAY = Arrays.asList(
+            "Budget",
+            "Category",
+            "Expense",
+            "Income",
+            "Saving",
+            "SavingGoal"
+    );
 
 
     /**
@@ -31,7 +48,7 @@ public class Util {
      * Save the user to SharedPreferences and update the static variable.
      *
      * @param context Application context
-     * @param user      The user to save
+     * @param user    The user to save
      */
     public static void saveAppUser(Context context, User user) {
         SharedPreferences sharedPreferences = context.getSharedPreferences(PREFS_NAME, Context.MODE_PRIVATE);
