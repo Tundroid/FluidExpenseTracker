@@ -1,15 +1,13 @@
-package com.example.fluidexpensetracker.model.adapter;
+package com.example.fluidexpensetracker.data.adapter;
 
 import android.view.LayoutInflater;
-import android.view.View;
 import android.view.ViewGroup;
-import android.widget.TextView;
 
 import androidx.annotation.NonNull;
 import androidx.recyclerview.widget.RecyclerView;
 
-import com.example.fluidexpensetracker.R;
-import com.example.fluidexpensetracker.model.Category;
+import com.example.fluidexpensetracker.databinding.CategoryItemBinding;
+import com.example.fluidexpensetracker.data.model.Category;
 import com.example.fluidexpensetracker.util.GenericAdapter;
 
 import java.util.ArrayList;
@@ -18,6 +16,7 @@ import java.util.List;
 public class CategoryAdapter extends RecyclerView.Adapter<CategoryAdapter.ViewHolder> implements GenericAdapter<Category> {
 
     private List<Category> categoryList;
+    private CategoryItemBinding binding;
 
     public CategoryAdapter() {
         this.categoryList = new ArrayList<>();
@@ -26,22 +25,26 @@ public class CategoryAdapter extends RecyclerView.Adapter<CategoryAdapter.ViewHo
     @NonNull
     @Override
     public ViewHolder onCreateViewHolder(@NonNull ViewGroup parent, int viewType) {
-        View view = LayoutInflater.from(parent.getContext()).inflate(R.layout.category_layout, parent, false); // Inflate your item layout
-        return new ViewHolder(view);
+        binding = CategoryItemBinding.inflate(LayoutInflater.from(parent.getContext()), parent, false);
+        return new CategoryAdapter.ViewHolder(binding);
     }
 
     @Override
     public void onBindViewHolder(@NonNull ViewHolder holder, int position) {
         Category category = categoryList.get(position);
-        holder.catTextView.setText(category.getName());
+        holder.bind(category);
     }
 
     public static class ViewHolder extends RecyclerView.ViewHolder {
-        TextView catTextView;
+        private final CategoryItemBinding binding;
 
-        public ViewHolder(@NonNull View itemView) {
-            super(itemView);
-            catTextView = itemView.findViewById(R.id.catDate);
+        public ViewHolder(@NonNull CategoryItemBinding binding) {
+            super(binding.getRoot());
+            this.binding = binding;
+        }
+
+        public void bind(Category category) {
+            binding.catTV.setText(category.getCategoryName());
         }
     }
 
@@ -67,7 +70,7 @@ public class CategoryAdapter extends RecyclerView.Adapter<CategoryAdapter.ViewHo
 
     @Override
     public int getItemID(int position) {
-        return categoryList.get(position).getId();
+        return categoryList.get(position).getCategoryID();
     }
 
     @Override

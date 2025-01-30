@@ -3,10 +3,14 @@ package com.example.fluidexpensetracker.util;
 import android.content.Context;
 import android.content.SharedPreferences;
 
-import com.example.fluidexpensetracker.model.User;
+import com.example.fluidexpensetracker.data.model.User;
 
+import java.text.ParseException;
+import java.text.SimpleDateFormat;
 import java.util.Arrays;
+import java.util.Date;
 import java.util.List;
+import java.util.Locale;
 
 
 public class Util {
@@ -68,4 +72,23 @@ public class Util {
     public static User getAppUser() {
         return appUser;
     }
+
+    public static Date getDateObject(String date) {
+        SimpleDateFormat format = new SimpleDateFormat("yyyy-MM-dd", Locale.getDefault());
+        try {
+            return format.parse(date);
+        } catch (ParseException e) {
+            e.printStackTrace();
+            return null;
+        }
+    }
+
+//    public String getFormattedDate(String outputFormat) {
+//        Date dateObject = getDateObject();
+//        if (dateObject != null) {
+//            SimpleDateFormat outputFormatter = new SimpleDateFormat(outputFormat, Locale.getDefault());
+//            return outputFormatter.format(dateObject);
+//        }
+//        return ""; // Or handle the error as needed
+//    }
 }

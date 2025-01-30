@@ -1,16 +1,13 @@
-package com.example.fluidexpensetracker.model.adapter;
+package com.example.fluidexpensetracker.data.adapter;
 
 import android.view.LayoutInflater;
-import android.view.View;
 import android.view.ViewGroup;
-import android.widget.TextView;
 
 import androidx.annotation.NonNull;
 import androidx.recyclerview.widget.RecyclerView;
 
-import com.example.fluidexpensetracker.R;
 import com.example.fluidexpensetracker.databinding.ExpenseItemBinding;
-import com.example.fluidexpensetracker.model.Expense;
+import com.example.fluidexpensetracker.data.model.Expense;
 import com.example.fluidexpensetracker.util.GenericAdapter;
 
 import java.util.ArrayList;
@@ -19,7 +16,7 @@ import java.util.List;
 public class ExpenseAdapter extends RecyclerView.Adapter<ExpenseAdapter.ViewHolder> implements GenericAdapter<Expense> {
 
     private List<Expense> expenseList;
-    private static ExpenseItemBinding binding;
+    private ExpenseItemBinding binding;
 
     public ExpenseAdapter() {
         this.expenseList = new ArrayList<>();
@@ -28,18 +25,30 @@ public class ExpenseAdapter extends RecyclerView.Adapter<ExpenseAdapter.ViewHold
     @NonNull
     @Override
     public ViewHolder onCreateViewHolder(@NonNull ViewGroup parent, int viewType) {
-        View view = LayoutInflater.from(parent.getContext()).inflate(R.layout.expense_item, parent, false); // Inflate your item layout
         binding = ExpenseItemBinding.inflate(LayoutInflater.from(parent.getContext()), parent, false);
-        return new ViewHolder(view);
+        return new ViewHolder(binding);
     }
 
     @Override
     public void onBindViewHolder(@NonNull ViewHolder holder, int position) {
         Expense expense = expenseList.get(position);
-        holder.dateTextView.setText(expense.getDate()); // Set data to views
-        holder.amountTextView.setText(String.valueOf(expense.getAmount()));
-        holder.categoryTextView.setText(expense.getCategory());
-        holder.descTV.setText(expense.getDescription());
+        holder.bind(expense);
+    }
+
+    public static class ViewHolder extends RecyclerView.ViewHolder {
+        private final ExpenseItemBinding binding;
+
+        public ViewHolder(@NonNull ExpenseItemBinding binding) {
+            super(binding.getRoot());
+            this.binding = binding;
+        }
+
+        public void bind(Expense expense) {
+            binding.tvDate.setText(expense.getExpenseDate());
+            binding.tvAmount.setText(String.valueOf(expense.getAmount()));
+            binding.tvCategory.setText(expense.getCategory());
+            binding.tvDescription.setText(expense.getExpenseDescription());
+        }
     }
 
     @Override
@@ -64,7 +73,7 @@ public class ExpenseAdapter extends RecyclerView.Adapter<ExpenseAdapter.ViewHold
 
     @Override
     public int getItemID(int position) {
-        return expenseList.get(position).getId();
+        return expenseList.get(position).getExpenseID();
     }
 
     @Override
@@ -94,18 +103,4 @@ public class ExpenseAdapter extends RecyclerView.Adapter<ExpenseAdapter.ViewHold
         super.notifyDataSetChanged();
     }
 
-    public static class ViewHolder extends RecyclerView.ViewHolder {
-        TextView dateTextView;
-        TextView amountTextView;
-        TextView categoryTextView;
-        TextView descTV;
-
-        public ViewHolder(@NonNull View itemView) {
-            super(itemView);
-            dateTextView = itemView.findViewById(R.id.tvDate);
-            amountTextView = itemView.findViewById(R.id.tvAmount);
-            categoryTextView = itemView.findViewById(R.id.tvCategory);
-            descTV = itemView.findViewById(R.id.tvDescription);
-        }
-    }
 }

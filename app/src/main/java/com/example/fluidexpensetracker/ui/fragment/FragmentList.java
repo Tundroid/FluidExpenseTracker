@@ -16,14 +16,13 @@ import androidx.swiperefreshlayout.widget.SwipeRefreshLayout;
 
 import com.example.fluidexpensetracker.ui.util.SwipeToDeleteCallback;
 import com.example.fluidexpensetracker.databinding.FragmentListBinding;
-import com.example.fluidexpensetracker.model.Category;
-import com.example.fluidexpensetracker.model.Expense;
-import com.example.fluidexpensetracker.model.adapter.CategoryAdapter;
-import com.example.fluidexpensetracker.model.adapter.ExpenseAdapter;
-import com.example.fluidexpensetracker.model.util.SharedViewModel;
+import com.example.fluidexpensetracker.data.model.Category;
+import com.example.fluidexpensetracker.data.model.Expense;
+import com.example.fluidexpensetracker.data.adapter.CategoryAdapter;
+import com.example.fluidexpensetracker.data.adapter.ExpenseAdapter;
+import com.example.fluidexpensetracker.data.viewmodel.SharedViewModel;
 import com.example.fluidexpensetracker.util.FetchCallback;
 import com.example.fluidexpensetracker.util.GenericAdapter;
-import com.example.fluidexpensetracker.util.Menu;
 import com.example.fluidexpensetracker.util.Util;
 
 import java.util.List;

@@ -25,9 +25,9 @@ import com.android.volley.RequestQueue;
 import com.android.volley.toolbox.JsonObjectRequest;
 import com.android.volley.toolbox.Volley;
 import com.example.fluidexpensetracker.R;
-import com.example.fluidexpensetracker.model.Category;
-import com.example.fluidexpensetracker.model.Expense;
-import com.example.fluidexpensetracker.model.util.SharedViewModel;
+import com.example.fluidexpensetracker.data.model.Category;
+import com.example.fluidexpensetracker.data.model.Expense;
+import com.example.fluidexpensetracker.data.viewmodel.SharedViewModel;
 import com.example.fluidexpensetracker.util.Util;
 
 import org.json.JSONException;
@@ -75,7 +75,6 @@ public class NewDialogFragment extends DialogFragment {
                 viewModel = new ViewModelProvider(requireActivity()).get(SharedViewModel.class);
                 dialog = buildExpenseDialog(view);
         }
-        requestBody = new JSONObject();
         return dialog;
     }
 
@@ -94,7 +93,7 @@ public class NewDialogFragment extends DialogFragment {
                         List<Category> categoryList = (List<Category>)categories;
 
                         for (Category category : categoryList) {
-                            categoryNames.add(category.getName());
+                            categoryNames.add(category.getCategoryName());
                         }
 
                         ArrayAdapter<String> adapter = new ArrayAdapter<>(
@@ -108,7 +107,7 @@ public class NewDialogFragment extends DialogFragment {
                             @Override
                             public void onItemSelected(AdapterView<?> parent, View view, int position, long id) {
                                 selectedCategory = categoryList.get(position);
-                                Log.d(TAG, "Selected Category ID: " + selectedCategory.getId());
+                                Log.d(TAG, "Selected Category ID: " + selectedCategory.getCategoryID());
                             }
 
                             @Override
@@ -124,10 +123,11 @@ public class NewDialogFragment extends DialogFragment {
         }
     }
 
-    private void uploadToCloud(String urlModel, Object item) {
+    private void uploadToCloud(String urlModel) {
         String url = getString(R.string.base_url) + "/create/" + urlModel;
 
         RequestQueue queue = Volley.newRequestQueue(requireContext());
+        System.out.println("Request body:" + requestBody);
 
         JsonObjectRequest jsonObjectRequest = new JsonObjectRequest(Request.Method.POST, url, requestBody,
                 response -> {
@@ -166,19 +166,17 @@ public class NewDialogFragment extends DialogFragment {
 
                     try {
                         double amount = Double.parseDouble(amountStr);
-                        Expense expense = new Expense(0, date, amount, category, description);
+                        Expense expense = new Expense(null, date, amount, category, description);
                         try {
-                            requestBody.put("ExpenseDate", expense.getDate());
-                            requestBody.put("Amount", expense.getAmount());
-                            requestBody.put("CategoryID", selectedCategory.getId());
-                            requestBody.put("ExpenseDescription", expense.getDescription());
+                            requestBody = new JSONObject(expense.toString());
+                            requestBody.put("CategoryID", selectedCategory.getCategoryID());
                             requestBody.put("UserID", Util.getAppUser().getId());
                         } catch (JSONException e) {
                             Log.e(TAG, "JSON Exception: " + e.getMessage());
                             Toast.makeText(getActivity(), "Error creating JSON", Toast.LENGTH_SHORT).show();
                             return;
                         }
-                        uploadToCloud("expense", expense);
+                        uploadToCloud("expense");
 
                     } catch (NumberFormatException e) {
                         Toast.makeText(getContext(), "Invalid amount", Toast.LENGTH_SHORT).show();
@@ -206,16 +204,17 @@ public class NewDialogFragment extends DialogFragment {
 
                     try {
                         Category newCategory = new Category(0, category, Util.ACTIVE_CATEGORY.getValue());
+                        System.out.println("The string version: " + newCategory.toString());
                         try {
-                            requestBody.put("CategoryName", newCategory.getName());
-                            requestBody.put("CategoryType", newCategory.getType());
+                            requestBody = new JSONObject(newCategory.toString());
+                            System.out.println("The Request BODY: " + requestBody);
                             requestBody.put("UserID", Util.getAppUser().getId());
                         } catch (JSONException e) {
                             Log.e(TAG, "JSON Exception: " + e.getMessage());
                             Toast.makeText(getActivity(), "Error creating JSON", Toast.LENGTH_SHORT).show();
                             return;
                         }
-                        uploadToCloud("category", newCategory);
+                        uploadToCloud("category");
 
                     } catch (NumberFormatException e) {
                         Toast.makeText(getContext(), "Invalid amount", Toast.LENGTH_SHORT).show();

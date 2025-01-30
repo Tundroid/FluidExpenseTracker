@@ -1,9 +1,8 @@
-package com.example.fluidexpensetracker.model;
+package com.example.fluidexpensetracker.data.model;
 
-import java.text.ParseException;
-import java.text.SimpleDateFormat;
-import java.util.Date;
-import java.util.Locale;
+import com.fasterxml.jackson.core.JsonProcessingException;
+import com.fasterxml.jackson.databind.ObjectMapper;
+import com.fasterxml.jackson.databind.PropertyNamingStrategies;
 
 public class User {
 
@@ -11,9 +10,7 @@ public class User {
     private String name;
     private String email;
 
-    // Constructors
     public User() {
-        // Default constructor (important for some libraries/frameworks)
     }
 
     public User(int id, String name, String email) {
@@ -22,7 +19,6 @@ public class User {
         this.email = email;
     }
 
-    // Getters and Setters
     public int getId() {
         return id;
     }
@@ -30,7 +26,6 @@ public class User {
     public void setId(int id) {
         this.id = id;
     }
-
 
     public String getName() {
         return name;
@@ -46,5 +41,16 @@ public class User {
 
     public void setEmail(String email) {
         this.email = email;
+    }
+
+    @Override
+    public String toString() {
+        try {
+            ObjectMapper mapper = new ObjectMapper();
+            mapper.setPropertyNamingStrategy(PropertyNamingStrategies.UPPER_CAMEL_CASE);
+            return mapper.writeValueAsString(this);
+        } catch (JsonProcessingException e) {
+            return "{}";
+        }
     }
 }

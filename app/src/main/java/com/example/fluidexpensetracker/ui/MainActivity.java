@@ -15,9 +15,9 @@ import androidx.lifecycle.ViewModelProvider;
 
 import com.example.fluidexpensetracker.ui.fragment.FragmentList;
 import com.example.fluidexpensetracker.R;
-import com.example.fluidexpensetracker.model.util.SharedViewModel;
+import com.example.fluidexpensetracker.data.viewmodel.SharedViewModel;
 import com.example.fluidexpensetracker.databinding.ActivityMainBinding;
-import com.example.fluidexpensetracker.model.User;
+import com.example.fluidexpensetracker.data.model.User;
 import com.example.fluidexpensetracker.util.Category;
 import com.example.fluidexpensetracker.util.FetchCallback;
 import com.example.fluidexpensetracker.util.Menu;

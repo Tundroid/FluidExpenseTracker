@@ -18,7 +18,7 @@ import com.android.volley.RequestQueue;
 import com.android.volley.toolbox.JsonObjectRequest;
 import com.android.volley.toolbox.Volley;
 import com.example.fluidexpensetracker.R;
-import com.example.fluidexpensetracker.model.User;
+import com.example.fluidexpensetracker.data.model.User;
 import com.example.fluidexpensetracker.util.Util;
 
 import org.json.JSONException;

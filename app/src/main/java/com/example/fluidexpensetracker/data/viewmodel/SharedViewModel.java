@@ -1,4 +1,4 @@
-package com.example.fluidexpensetracker.model.util;
+package com.example.fluidexpensetracker.data.viewmodel;
 
 import static com.android.volley.VolleyLog.TAG;
 
@@ -14,8 +14,8 @@ import com.android.volley.RequestQueue;
 import com.android.volley.toolbox.JsonArrayRequest;
 import com.android.volley.toolbox.Volley;
 import com.example.fluidexpensetracker.R;
-import com.example.fluidexpensetracker.model.Category;
-import com.example.fluidexpensetracker.model.Expense;
+import com.example.fluidexpensetracker.data.model.Category;
+import com.example.fluidexpensetracker.data.model.Expense;
 import com.example.fluidexpensetracker.util.FetchCallback;
 import com.example.fluidexpensetracker.util.Menu;
 import com.example.fluidexpensetracker.util.Model;
@@ -125,7 +125,7 @@ public class SharedViewModel<T> extends ViewModel {
             List<T> filteredItems = new ArrayList<>();
             if (categoryType != null) {
                 for (T item : currentItems) {
-                    if (((Category)item).getType().equals(categoryType)) {
+                    if (((Category)item).getCategoryType().equals(categoryType)) {
                         filteredItems.add(item);
                     }
                 }
@@ -154,13 +154,13 @@ public class SharedViewModel<T> extends ViewModel {
             // Sort expenses by date (desc) and description (asc)
             fetchedItems.sort((expense1, expense2) -> {
                 // Compare by date in descending order
-                Date date1 = expense1.getDateObject();
-                Date date2 = expense2.getDateObject();
+                Date date1 = Util.getDateObject(expense1.getExpenseDate());
+                Date date2 = Util.getDateObject(expense2.getExpenseDate());
                 int dateComparison = date1 != null && date2 != null ? date2.compareTo(date1) : 0;
 
                 // If dates are the same, compare by description in ascending order
                 if (dateComparison == 0) {
-                    return expense1.getDescription().compareToIgnoreCase(expense2.getDescription());
+                    return expense1.getExpenseDescription().compareToIgnoreCase(expense2.getExpenseDescription());
                 }
                 return dateComparison;
             });
