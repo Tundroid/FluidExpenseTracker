@@ -13,6 +13,10 @@
             android:icon="@drawable/ic_launcher_background"
             android:title="@string/main_menu_expense" />
         <item
+            android:id="@+id/nav_income"
+            android:icon="@drawable/ic_launcher_background"
+            android:title="@string/main_menu_income" />
+        <item
             android:id="@+id/nav_gallery"
             android:icon="@drawable/ic_launcher_background"
             android:title="@string/main_menu_budget" />
