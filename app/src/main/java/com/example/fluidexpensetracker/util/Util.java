@@ -18,7 +18,6 @@ public class Util {
     private static User appUser;
     private static final String PREFS_NAME = "user_prefs";
 
-    public static int ACTIVE_ID;
     public static Menu ACTIVE_MENU;
     public static Model ACTIVE_MODEL;
     public static Category ACTIVE_CATEGORY;

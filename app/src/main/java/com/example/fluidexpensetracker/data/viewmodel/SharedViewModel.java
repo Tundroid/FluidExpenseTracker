@@ -48,8 +48,7 @@ public class SharedViewModel<T> extends ViewModel {
         filterItems();
     }
 
-    public List<T> getDataList()
-    {
+    public List<T> getDataList() {
         return itemList.getValue();
     }
 
@@ -83,7 +82,6 @@ public class SharedViewModel<T> extends ViewModel {
     // Set the current category type filter
     public void setCategoryType(String categoryType) {
         this.categoryType = categoryType;
-        System.out.println("Setting filter");
         filterItems(); // Apply the filter whenever the category type changes
     }
 
@@ -101,7 +99,6 @@ public class SharedViewModel<T> extends ViewModel {
                 response -> {
                     switch (menu) {
                         case CATEGORY:
-                            System.out.println("Receiving categories...");
                             processCategoryResponse(response, callback);
                             break;
                         default:
@@ -116,24 +113,20 @@ public class SharedViewModel<T> extends ViewModel {
         queue.add(jsonArrayRequest);
     }
 
-    // Filter categories based on the selected category type
     private void filterItems() {
-        System.out.println("Filtering...");
         List<T> currentItems = itemList.getValue();
         if (currentItems != null) {
-            System.out.println("Really Filtering...: " + categoryType);
             List<T> filteredItems = new ArrayList<>();
             if (categoryType != null) {
                 for (T item : currentItems) {
-                    if (((Category)item).getCategoryType().equals(categoryType)) {
+                    if (((Category) item).getCategoryType().equals(categoryType)) {
                         filteredItems.add(item);
                     }
                 }
             } else {
-                filteredItems.addAll(currentItems); // Show all if no filter
+                filteredItems.addAll(currentItems);
             }
             filteredItemList.setValue(filteredItems);
-            System.out.println("Filtering... DONE: " + filteredItems.size());
         }
     }
 
@@ -141,17 +134,19 @@ public class SharedViewModel<T> extends ViewModel {
     public void processExpenseResponse(JSONArray response, FetchCallback callback) {
         try {
             List<Expense> fetchedItems = new ArrayList<>();
+            JSONObject item;
             for (int i = 0; i < response.length(); i++) {
-                JSONObject jsonObject = response.getJSONObject(i);
-                int id = jsonObject.getInt("ExpenseID");
-                String date = jsonObject.getString("ExpenseDate");
-                int amount = jsonObject.getInt("Amount");
-                String category = jsonObject.getString("CategoryName");
-                String description = jsonObject.getString("ExpenseDescription");
+                item = response.getJSONObject(i);
 
-                fetchedItems.add(new Expense(id, date, amount, category, description));
+                fetchedItems.add(new Expense(
+                        item.getInt("ExpenseID"),
+                        item.getString("ExpenseDate"),
+                        item.getInt("Amount"),
+                        item.getString("CategoryName")
+                        , item.getString("ExpenseDescription")
+                ));
             }
-            // Sort expenses by date (desc) and description (asc)
+
             fetchedItems.sort((expense1, expense2) -> {
                 // Compare by date in descending order
                 Date date1 = Util.getDateObject(expense1.getExpenseDate());
@@ -164,8 +159,8 @@ public class SharedViewModel<T> extends ViewModel {
                 }
                 return dateComparison;
             });
-            System.out.println("Fetched Expense items size: " + fetchedItems.size());
-            setItems((List<T>)fetchedItems);
+
+            setItems((List<T>) fetchedItems);
             callback.onFetched();
         } catch (JSONException e) {
             Log.e(TAG, "Error parsing JSON: " + e.getMessage());
@@ -176,16 +171,18 @@ public class SharedViewModel<T> extends ViewModel {
     public void processCategoryResponse(JSONArray response, FetchCallback callback) {
         try {
             List<Category> fetchedItems = new ArrayList<>();
+            JSONObject item;
             for (int i = 0; i < response.length(); i++) {
-                JSONObject jsonObject = response.getJSONObject(i);
-                int id = jsonObject.getInt("CategoryID");
-                String name = jsonObject.getString("CategoryName");
-                String type = jsonObject.getString("CategoryType");
+                item = response.getJSONObject(i);
 
-                fetchedItems.add(new Category(id, name, type));
+                fetchedItems.add(new Category(
+                        item.getInt("CategoryID"),
+                        item.getString("CategoryName"),
+                        item.getString("CategoryType")
+                ));
             }
-            System.out.println("Fetched Category items size: " + fetchedItems.size());
-            setItems((List<T>)fetchedItems);
+
+            setItems((List<T>) fetchedItems);
             callback.onFetched();
         } catch (JSONException e) {
             Log.e(TAG, "Error parsing JSON: " + e.getMessage());
